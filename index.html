@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101c2b">
+  <meta name="description" content="GeoGuide: Explore. Identify. Understand. A practical rock, mineral, and field observation companion.">
+  <title>GeoGuide — Explore. Identify. Understand.</title>
+  <link rel="icon" href="assets/geoguide-icon.png" type="image/png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+<body>
+  <!--
+    GeoGuide — Explore. Identify. Understand.
+    Frontend structure only. styles.css and app.js are separate files.
+    Authentication, persistent observations, and Gemini AI require the backend
+    and Supabase configuration described in the project setup.
+  -->
+
+  <div class="app-shell">
+    <!-- AUTHENTICATION -->
+    <main id="auth-screen" class="auth-screen">
+      <section class="auth-brand" aria-label="GeoGuide introduction">
+        <a class="brand brand-large" href="#home" aria-label="GeoGuide home">
+          <span class="brand-mark" aria-hidden="true">G</span>
+          <span class="brand-copy">
+            <strong>GeoGuide</strong>
+            <small>Explore. Identify. Understand.</small>
+          </span>
+        </a>
+        <div class="auth-brand-message">
+          <p class="eyebrow">YOUR GEOLOGY COMPANION</p>
+          <h1>Understand the ground beneath you.</h1>
+          <p>Explore rocks and minerals, organize field observations, and build your geological knowledge.</p>
+        </div>
+        <p class="auth-image-caption">A practical companion for curious minds and geology students.</p>
+      </section>
+
+      <section class="auth-panel" aria-label="Account access">
+        <div class="auth-tabs" role="tablist" aria-label="Account options">
+          <button class="auth-tab is-active" type="button" id="signin-tab" role="tab"
+                  aria-selected="true" aria-controls="signin-panel" data-auth-tab="signin">Sign in</button>
+          <button class="auth-tab" type="button" id="signup-tab" role="tab"
+                  aria-selected="false" aria-controls="signup-panel" data-auth-tab="signup">Create account</button>
+        </div>
+
+        <form id="signin-form" class="auth-form" data-auth-form="signin" aria-labelledby="signin-tab">
+          <p class="eyebrow">WELCOME BACK</p>
+          <h2>Sign in to GeoGuide</h2>
+          <p class="muted">Continue exploring and managing your field records.</p>
+
+          <label for="signin-email">Email address</label>
+          <input id="signin-email" name="email" type="email" autocomplete="username"
+                 placeholder="you@example.com" required>
+
+          <label for="signin-password">Password</label>
+          <div class="password-field">
+            <input id="signin-password" name="password" type="password" autocomplete="current-password"
+                   placeholder="Enter your password" required>
+            <button class="password-toggle" type="button" data-password-toggle="signin-password"
+                    aria-label="Show password" aria-pressed="false">
+              <span aria-hidden="true">◉</span>
+            </button>
+          </div>
+
+          <div class="form-options">
+            <label class="checkbox-label" for="remember-me">
+              <input id="remember-me" name="rememberMe" type="checkbox">
+              <span>Remember me</span>
+            </label>
+            <button class="text-button" type="button" data-open-panel="forgot-password">Forgot password?</button>
+          </div>
+
+          <button class="button button-primary button-full" type="submit">Sign in</button>
+          <p class="form-message" id="signin-message" role="status" aria-live="polite"></p>
+          <p class="auth-switch">New to GeoGuide? <button type="button" class="text-button" data-auth-tab="signup">Create an account</button></p>
+        </form>
+
+        <form id="signup-form" class="auth-form" data-auth-form="signup" hidden aria-labelledby="signup-tab">
+          <p class="eyebrow">START YOUR JOURNEY</p>
+          <h2>Create your account</h2>
+          <p class="muted">Save your observations and access them across your devices.</p>
+
+          <label for="signup-name">Full name</label>
+          <input id="signup-name" name="fullName" type="text" autocomplete="name"
+                 placeholder="Your full name" required>
+
+          <label for="signup-email">Email address</label>
+          <input id="signup-email" name="email" type="email" autocomplete="email"
+                 placeholder="you@example.com" required>
+
+          <label for="signup-password">Create password</label>
+          <div class="password-field">
+            <input id="signup-password" name="password" type="password" autocomplete="new-password"
+                   minlength="8" placeholder="At least 8 characters" required>
+            <button class="password-toggle" type="button" data-password-toggle="signup-password"
+                    aria-label="Show password" aria-pressed="false">
+              <span aria-hidden="true">◉</span>
+            </button>
+          </div>
+          <p class="field-hint">Use at least 8 characters. Never reuse a password you use elsewhere.</p>
+
+          <label for="signup-confirm-password">Confirm password</label>
+          <div class="password-field">
+            <input id="signup-confirm-password" name="confirmPassword" type="password"
+                   autocomplete="new-password" minlength="8" placeholder="Enter it again" required>
+            <button class="password-toggle" type="button" data-password-toggle="signup-confirm-password"
+                    aria-label="Show password" aria-pressed="false">
+              <span aria-hidden="true">◉</span>
+            </button>
+          </div>
+
+          <button class="button button-primary button-full" type="submit">Create account</button>
+          <p class="form-message" id="signup-message" role="status" aria-live="polite"></p>
+          <p class="auth-switch">Already have an account? <button type="button" class="text-button" data-auth-tab="signin">Sign in</button></p>
+        </form>
+
+        <form id="forgot-password-form" class="auth-form" data-auth-form="forgot-password" hidden>
+          <p class="eyebrow">ACCOUNT RECOVERY</p>
+          <h2>Reset your password</h2>
+          <p class="muted">Enter the email address associated with your GeoGuide account. We'll connect this form to the password-reset service during backend setup.</p>
+          <label for="reset-email">Email address</label>
+          <input id="reset-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+          <button class="button button-primary button-full" type="submit">Send reset link</button>
+          <p class="form-message" id="reset-message" role="status" aria-live="polite"></p>
+          <button class="text-button" type="button" data-auth-tab="signin">Back to sign in</button>
+        </form>
+
+        <p class="auth-legal">By continuing, you agree to use GeoGuide responsibly and respect the accuracy of field data.</p>
+      </section>
+    </main>
+
+    <!-- MAIN APPLICATION: shown after authentication is connected -->
+    <div id="main-app" class="main-app" hidden>
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="#dashboard" data-view="dashboard" aria-label="GeoGuide dashboard">
+          <span class="brand-mark" aria-hidden="true">G</span>
+          <span class="brand-copy"><strong>GeoGuide</strong><small>Explore. Identify. Understand.</small></span>
+        </a>
+
+        <nav class="side-nav" aria-label="Main navigation">
+          <p class="nav-heading">WORKSPACE</p>
+          <button class="nav-link is-active" type="button" data-view="dashboard"><span aria-hidden="true">⌂</span> Dashboard</button>
+          <button class="nav-link" type="button" data-view="map"><span aria-hidden="true">◖</span> GeoGuide Map</button>
+          <button class="nav-link" type="button" data-view="rock-identifier"><span aria-hidden="true">◇</span> Rock Identifier</button>
+          <button class="nav-link" type="button" data-view="field-notebook"><span aria-hidden="true">▧</span> Field Notebook</button>
+          <button class="nav-link" type="button" data-view="field-tools"><span aria-hidden="true">⌁</span> Field Tools</button>
+          <button class="nav-link" type="button" data-view="observations"><span aria-hidden="true">☷</span> Observations <span class="nav-count" id="observation-count">0</span></button>
+          <p class="nav-heading nav-heading-spaced">ACCOUNT</p>
+          <button class="nav-link" type="button" data-view="profile"><span aria-hidden="true">♙</span> Profile & Settings</button>
+          <button class="nav-link" type="button" data-view="about"><span aria-hidden="true">ⓘ</span> About GeoGuide</button>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <div class="sidebar-help">
+            <span class="help-icon" aria-hidden="true">?</span>
+            <strong>Need a hand?</strong>
+            <p>Explore the guides or review your saved observations.</p>
+            <button type="button" class="text-button" data-view="about">About GeoGuide →</button>
+          </div>
+          <button type="button" class="nav-link signout-button" id="signout-button"><span aria-hidden="true">↪</span> Sign out</button>
+        </div>
+      </aside>
+
+      <div class="app-content">
+        <header class="topbar">
+          <button type="button" class="icon-button mobile-menu-button" id="mobile-menu-button"
+                  aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">☰</button>
+          <form class="global-search" id="global-search-form" role="search">
+            <label class="visually-hidden" for="global-search">Search GeoGuide</label>
+            <span aria-hidden="true">⌕</span>
+            <input id="global-search" name="q" type="search" placeholder="Search rocks, minerals, observations...">
+            <kbd>⌘ K</kbd>
+          </form>
+          <div class="topbar-actions">
+            <button class="icon-button" type="button" data-view="observations" aria-label="Your observations">♧</button>
+            <button class="profile-chip" type="button" data-view="profile">
+              <span class="avatar" id="user-avatar">U</span>
+              <span class="profile-chip-copy"><strong id="header-user-name">Your account</strong><small>Geology explorer</small></span>
+            </button>
+          </div>
+        </header>
+
+        <main class="page-content" id="page-content">
+          <!-- DASHBOARD -->
+          <section class="page-view is-visible" id="view-dashboard" data-page="dashboard">
+            <div class="welcome-row">
+              <div><p class="eyebrow">YOUR GEOLOGY WORKSPACE</p><h1>Welcome back, <span id="welcome-name">Explorer</span></h1>
+                <p class="muted">Pick up where you left off on your geological journey.</p></div>
+              <button class="button button-secondary" type="button" data-view="field-notebook">＋ New observation</button>
+            </div>
+
+            <section class="hero-banner">
+              <div class="hero-content">
+                <p class="eyebrow">FIELDWORK &amp; LOCATION TOOL</p>
+                <h2>GeoGuide Map &amp; Outcrop Coordinates</h2>
+                <p>Pinpoint field locations, view live GPS coordinates, estimate terrain elevation, and copy position data into your field notes.</p>
+                <button class="button button-primary" type="button" data-view="map">Open Map <span aria-hidden="true">→</span></button>
+              </div>
+              <div class="hero-decoration" aria-hidden="true"><span class="hero-ring"></span><span class="hero-stone"></span></div>
+            </section>
+
+            <div class="section-heading"><div><p class="eyebrow">QUICK ACCESS</p><h2>What would you like to do?</h2></div></div>
+            <div class="quick-grid">
+              <button class="quick-card" type="button" data-view="map"><span class="quick-icon">◖</span><strong>GeoGuide Map</strong><span>Locate outcrops and read field coordinates.</span><span class="card-arrow">→</span></button>
+              <button class="quick-card" type="button" data-view="rock-identifier"><span class="quick-icon">◇</span><strong>Identify a rock</strong><span>Explore possible rock matches with AI.</span><span class="card-arrow">→</span></button>
+              <button class="quick-card" type="button" data-view="field-notebook"><span class="quick-icon">▧</span><strong>Record field notes</strong><span>Organize observations into structured notes.</span><span class="card-arrow">→</span></button>
+              <button class="quick-card" type="button" data-view="field-tools"><span class="quick-icon">⌁</span><strong>Field Tools</strong><span>Calculators for map scale, traverse, strike &amp; dip.</span><span class="card-arrow">→</span></button>
+              <button class="quick-card" type="button" data-view="observations"><span class="quick-icon">☷</span><strong>Saved observations</strong><span>Review and edit your field records.</span><span class="card-arrow">→</span></button>
+            </div>
+
+            <div class="dashboard-columns">
+              <section class="content-card"><div class="section-heading"><div><p class="eyebrow">YOUR FIELDWORK</p><h2>Recent observations</h2></div><button class="text-button" type="button" data-view="observations">View all →</button></div>
+                <div id="recent-observations" class="empty-state"><span class="empty-icon">▧</span><strong>No saved observations yet</strong><p>Your saved field records will appear here.</p><button class="button button-secondary" type="button" data-view="field-notebook">Create your first observation</button></div>
+              </section>
+              <section class="content-card featured-card daily-term-card" id="daily-term-card">
+                <div class="term-header-row">
+                  <p class="eyebrow">GEOLOGY TERM OF THE DAY</p>
+                  <span class="term-badge" id="daily-term-category">Petroleum Geology</span>
+                </div>
+                <h2 id="daily-term-title">Porosity</h2>
+                <p class="term-definition" id="daily-term-definition">The percentage of a rock's total volume occupied by pores or void spaces. Porosity influences how much fluid a rock can store.</p>
+                <div class="term-footer-meta">
+                  <small class="muted"><span aria-hidden="true">⟳</span> Rotates once per calendar day from 200 geological terms.</small>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <!-- GEOGUIDE MAP -->
+          <section class="page-view" id="view-map" data-page="map">
+            <div class="page-intro">
+              <p class="eyebrow">FIELD LOCATION TOOL</p>
+              <h1>GeoGuide Map</h1>
+              <p class="muted">Interactive field map for geological mapping, live GPS coordinates, and terrain elevation.</p>
+            </div>
+
+            <div class="map-layout">
+              <div class="map-toolbar">
+                <div class="map-actions">
+                  <button type="button" class="button button-primary" id="btn-find-my-location">
+                    <span aria-hidden="true">◎</span> Find My Location
+                  </button>
+                  <button type="button" class="button button-secondary" id="btn-center-portharcourt">
+                    Port Harcourt View
+                  </button>
+                </div>
+                <div class="map-status-pill" id="map-status-pill">
+                  <span class="status-dot"></span>
+                  <span id="map-status-text">Click any point on the map or use Find My Location</span>
+                </div>
+              </div>
+
+              <div id="geoguide-map" class="map-canvas-container" aria-label="Interactive geological field map"></div>
+
+              <div class="map-info-card content-card">
+                <div class="section-heading">
+                  <div>
+                    <p class="eyebrow">SELECTED POINT DATA</p>
+                    <h2>Outcrop Coordinates &amp; Elevation</h2>
+                  </div>
+                  <span class="location-badge" id="location-source-badge">No point selected</span>
+                </div>
+
+                <div class="coord-display-grid">
+                  <div class="coord-item">
+                    <small>Latitude</small>
+                    <strong id="display-latitude">—</strong>
+                  </div>
+                  <div class="coord-item">
+                    <small>Longitude</small>
+                    <strong id="display-longitude">—</strong>
+                  </div>
+                  <div class="coord-item">
+                    <small>Estimated Elevation</small>
+                    <strong id="display-elevation">—</strong>
+                  </div>
+                  <div class="coord-item">
+                    <small>Coordinate Reference</small>
+                    <strong id="display-datum">WGS 84 (GPS / Web Mercator)</strong>
+                  </div>
+                </div>
+
+                <p class="muted map-disclaimer">
+                  <small>Elevation is estimated from global digital terrain models (Open-Meteo / SRTM), not survey-grade GPS. Accuracy varies with local topography and satellite coverage.</small>
+                </p>
+
+                <div class="map-info-actions">
+                  <button type="button" class="button button-primary" id="btn-copy-coordinates" disabled>
+                    📋 Copy Field Coordinates
+                  </button>
+                  <button type="button" class="button button-secondary" id="btn-send-to-notebook" disabled>
+                    ▧ Send to Field Notebook
+                  </button>
+                  <span class="copy-feedback-text" id="coord-copy-message" role="status" aria-live="polite"></span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ROCK IDENTIFIER -->
+          <section class="page-view" id="view-rock-identifier" data-page="rock-identifier">
+            <div class="page-intro"><p class="eyebrow">AI-ASSISTED GEOLOGY</p><h1>Rock Identifier</h1><p class="muted">Describe what you observe. GeoGuide will suggest a leading match and plausible alternatives.</p></div>
+            <form id="rock-identifier-form" class="content-card form-card">
+              <div class="form-section-heading"><span class="step-number">01</span><div><h2>Choose a rock category</h2><p class="muted">Select the category you believe best fits the specimen.</p></div></div>
+              <fieldset class="choice-group">
+                <legend class="visually-hidden">Rock category</legend>
+                <label class="choice-card"><input type="radio" name="rockCategory" value="igneous" required><span class="choice-symbol">◈</span><strong>Igneous</strong><small>Formed from cooled magma or lava</small></label>
+                <label class="choice-card"><input type="radio" name="rockCategory" value="sedimentary"><span class="choice-symbol">▤</span><strong>Sedimentary</strong><small>Formed through deposition and lithification or other sedimentary processes</small></label>
+                <label class="choice-card"><input type="radio" name="rockCategory" value="metamorphic"><span class="choice-symbol">≋</span><strong>Metamorphic</strong><small>Changed by heat, pressure or fluids</small></label>
+              </fieldset>
+
+              <div class="form-grid">
+                <div class="field-group"><label for="rock-texture">Texture <span class="required">*</span></label>
+                  <select id="rock-texture" name="texture" required>
+                    <option value="">Select the closest texture</option>
+                    <option>Coarse-grained</option><option>Medium-grained</option><option>Fine-grained</option>
+                    <option>Very fine-grained</option><option>Glassy</option><option>Vesicular</option>
+                    <option>Foliated</option><option>Non-foliated</option><option>Clastic</option>
+                    <option>Quartz-rich / visible quartz grains</option><option>Porphyritic</option>
+                    <option>Crystalline</option><option>Equigranular</option><option>Phaneritic</option>
+                    <option>Aphanitic</option><option>Other</option>
+                  </select>
+                  <div class="conditional-field" id="other-texture-wrap" hidden><label for="other-texture">Describe the texture</label><input id="other-texture" name="otherTexture" type="text" placeholder="Enter your description"></div>
+                </div>
+                <div class="field-group"><label for="rock-grain-size">Grain size <span class="required">*</span></label>
+                  <select id="rock-grain-size" name="grainSize" required>
+                    <option value="">Select grain size</option>
+                    <option>Very fine</option><option>Fine</option><option>Medium</option><option>Coarse</option>
+                    <option>Very coarse</option><option>Grains not visible to the naked eye</option>
+                    <option>Mixed grain sizes</option><option>Sand-sized</option><option>Silt-sized</option>
+                    <option>Clay-sized</option><option>Gravel-sized</option><option>Other / uncertain</option>
+                  </select>
+                  <div class="conditional-field" id="other-grain-wrap" hidden><label for="other-grain-size">Describe the grain size</label><input id="other-grain-size" name="otherGrainSize" type="text" placeholder="Enter your description"></div>
+                </div>
+                <div class="field-group field-full"><label for="rock-color">Color <span class="required">*</span></label><input id="rock-color" name="color" type="text" required placeholder="e.g. dark grey with white crystals and pink specks"><small>Describe mixed colors, bands, spots, weathering or other color patterns.</small></div>
+                <div class="field-group field-full"><label for="rock-environment">Environment and additional observations</label><textarea id="rock-environment" name="environment" rows="4" placeholder="Where was it found? Describe the outcrop or surroundings, layering, cavities, visible minerals, fossil content, or any other useful evidence."></textarea><small>Do not enter a location you are unsure of. Describe only what you observed or know.</small></div>
+              </div>
+              <div class="form-actions"><p class="muted">AI results are suggestions, not laboratory confirmation.</p><button class="button button-primary" type="submit">✧ Identify my rock</button></div>
+              <p class="form-message" id="rock-identifier-message" role="status" aria-live="polite"></p>
+            </form>
+            <section id="rock-results" class="content-card results-card" hidden aria-live="polite">
+              <p class="eyebrow">IDENTIFICATION RESULTS</p><h2>Most likely match</h2><div id="primary-rock-result"></div>
+              <div class="section-heading"><h3>Possible matches</h3></div><div id="alternative-rock-results"></div>
+              <p class="muted">Compare these suggestions with trusted reference photographs and geological descriptions. If the evidence is insufficient, collect more observations or seek expert confirmation.</p>
+            </section>
+          </section>
+
+          <!-- FIELD NOTEBOOK -->
+          <section class="page-view" id="view-field-notebook" data-page="field-notebook">
+            <div class="page-intro">
+              <p class="eyebrow">FIELDWORK TOOLKIT</p>
+              <h1>Field Notebook</h1>
+              <p class="muted">Capture outcrop observations systematically. The structured browser generator formats your field data into a standard geological record.</p>
+            </div>
+            <form id="field-notebook-form" class="content-card form-card">
+              <input type="hidden" name="observationId" id="observation-id">
+              
+              <!-- 01 FIELD IDENTIFICATION -->
+              <div class="form-section-heading">
+                <span class="step-number">01</span>
+                <div>
+                  <h2>Field identification &amp; metadata</h2>
+                  <p class="muted">Record the project, observer and field station details.</p>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="field-group">
+                  <label for="project-name">Project / field trip name</label>
+                  <input id="project-name" name="projectName" type="text" placeholder="e.g. Niger Delta Basin Outcrop Study">
+                </div>
+                <div class="field-group">
+                  <label for="site-number">Observation / site number <span class="required">*</span></label>
+                  <input id="site-number" name="siteNumber" type="text" placeholder="e.g. Stop 04" required>
+                </div>
+                <div class="field-group">
+                  <label for="site-name">Site name / locality</label>
+                  <input id="site-name" name="siteName" type="text" placeholder="e.g. Ogbakiri river cutting">
+                </div>
+                <div class="field-group">
+                  <label for="observer-name">Observer name</label>
+                  <input id="observer-name" name="observerName" type="text" placeholder="e.g. Alex N.">
+                </div>
+                <div class="field-group">
+                  <label for="site-date">Date <span class="required">*</span></label>
+                  <input id="site-date" name="date" type="date" required>
+                </div>
+                <div class="field-group">
+                  <label for="site-time">Time</label>
+                  <input id="site-time" name="time" type="time">
+                </div>
+              </div>
+
+              <!-- 02 LOCATION -->
+              <div class="form-section-heading section-spaced">
+                <span class="step-number">02</span>
+                <div>
+                  <h2>Location &amp; geographic coordinates</h2>
+                  <p class="muted">Coordinates can also be copied from GeoGuide Map.</p>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="field-group">
+                  <label for="site-latitude">Latitude (decimal degrees)</label>
+                  <input id="site-latitude" name="latitude" type="text" inputmode="decimal" placeholder="e.g. 4.815600">
+                </div>
+                <div class="field-group">
+                  <label for="site-longitude">Longitude (decimal degrees)</label>
+                  <input id="site-longitude" name="longitude" type="text" inputmode="decimal" placeholder="e.g. 7.049800">
+                </div>
+                <div class="field-group">
+                  <label for="site-elevation">Elevation (metres a.s.l.)</label>
+                  <input id="site-elevation" name="elevation" type="number" step="any" placeholder="e.g. 18">
+                </div>
+                <div class="field-group">
+                  <label for="coord-ref">Coordinate reference / datum</label>
+                  <input id="coord-ref" name="coordinateRef" type="text" placeholder="e.g. WGS 84 / Minna Datum">
+                </div>
+                <div class="field-group field-full">
+                  <label for="site-environment">Geological setting &amp; environment</label>
+                  <input id="site-environment" name="environment" type="text" placeholder="e.g. riverbank cliff, road cut, quarry face, tidal channel">
+                </div>
+              </div>
+
+              <!-- 03 GEOLOGICAL OBSERVATIONS -->
+              <div class="form-section-heading section-spaced">
+                <span class="step-number">03</span>
+                <div>
+                  <h2>Geological observations &amp; lithology</h2>
+                  <p class="muted">Describe physical outcrop properties. Leave unmeasured fields blank.</p>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="field-group">
+                  <label for="obs-lithology">Rock / sediment type (lithology)</label>
+                  <input id="obs-lithology" name="lithology" type="text" placeholder="e.g. Medium-grained cross-bedded quartz sandstone">
+                </div>
+                <div class="field-group">
+                  <label for="obs-color">Colour (fresh &amp; weathered)</label>
+                  <input id="obs-color" name="color" type="text" placeholder="e.g. Buff yellowish-white (fresh), rust-brown (weathered)">
+                </div>
+                <div class="field-group">
+                  <label for="obs-grain-size">Grain size</label>
+                  <input id="obs-grain-size" name="grainSize" type="text" placeholder="e.g. Medium sand (0.25 - 0.5 mm), well-sorted">
+                </div>
+                <div class="field-group">
+                  <label for="obs-texture">Texture &amp; fabric</label>
+                  <input id="obs-texture" name="texture" type="text" placeholder="e.g. Clastic, sub-angular to rounded, grain-supported">
+                </div>
+                <div class="field-group field-full">
+                  <label for="obs-minerals">Mineral composition</label>
+                  <input id="obs-minerals" name="mineralComposition" type="text" placeholder="e.g. 85% quartz, 10% feldspar, minor muscovite flakes and iron oxide cement">
+                </div>
+                <div class="field-group">
+                  <label for="obs-structures">Sedimentary / structural features</label>
+                  <input id="obs-structures" name="structures" type="text" placeholder="e.g. Planar cross-stratification, ripple marks, erosional base">
+                </div>
+                <div class="field-group">
+                  <label for="obs-orientations">Bedding / foliation orientation</label>
+                  <input id="obs-orientations" name="orientations" type="text" placeholder="e.g. Strike 045°, Dip 18° SE">
+                </div>
+                <div class="field-group">
+                  <label for="obs-contacts">Contacts &amp; boundary relationships</label>
+                  <input id="obs-contacts" name="contacts" type="text" placeholder="e.g. Sharp erosional basal contact with underlying grey mudstone">
+                </div>
+                <div class="field-group">
+                  <label for="obs-weathering">Weathering &amp; alteration</label>
+                  <input id="obs-weathering" name="weathering" type="text" placeholder="e.g. Moderately weathered, iron staining along joints">
+                </div>
+                <div class="field-group field-full">
+                  <label for="obs-field-relationships">Surrounding geology &amp; regional context</label>
+                  <textarea id="obs-field-relationships" name="fieldRelationships" rows="3" placeholder="Describe the unit's lateral continuity, stratigraphic relationships with neighboring beds, regional exposure extent, or structural disruption."></textarea>
+                </div>
+              </div>
+
+              <!-- 04 SAMPLES & REFERENCES -->
+              <div class="form-section-heading section-spaced">
+                <span class="step-number">04</span>
+                <div>
+                  <h2>Sample &amp; photograph references</h2>
+                  <p class="muted">Track physical specimens and field photos taken at this stop.</p>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="field-group">
+                  <label for="obs-sample-number">Sample number(s)</label>
+                  <input id="obs-sample-number" name="sampleNumber" type="text" placeholder="e.g. GEO-2026-ST04-A">
+                </div>
+                <div class="field-group">
+                  <label for="obs-photo-ref">Photographic reference(s)</label>
+                  <input id="obs-photo-ref" name="photoRef" type="text" placeholder="e.g. DSC_0481 (outcrop view looking North), DSC_0482 (hand specimen with scale)">
+                </div>
+              </div>
+
+              <!-- 05 OBSERVATIONS & INTERPRETATION -->
+              <div class="form-section-heading section-spaced">
+                <span class="step-number">05</span>
+                <div>
+                  <h2>Field observations &amp; student interpretation</h2>
+                  <p class="muted">Separate verifiable observations from your working interpretation.</p>
+                </div>
+              </div>
+              <div class="field-group">
+                <label for="raw-observations">Raw field observations &amp; notes <span class="required">*</span></label>
+                <textarea id="raw-observations" name="rawNotes" rows="6" required placeholder="Write what you saw: outcrop dimensions, facies, biological activity, water conditions, fractures, and immediate field measurements."></textarea>
+                <small>Record measurements and observations actually collected. Never guess missing values.</small>
+              </div>
+              <div class="field-group section-spaced">
+                <label for="obs-additional-notes">Additional field notes</label>
+                <textarea id="obs-additional-notes" name="additionalNotes" rows="3" placeholder="Weather conditions, accessibility notes, hazards, follow-up mapping required."></textarea>
+              </div>
+              <div class="field-group section-spaced">
+                <label for="obs-interpretation">Working geological interpretation (optional)</label>
+                <textarea id="obs-interpretation" name="interpretation" rows="3" placeholder="Your working interpretation of depositional environment, tectonic history, or provenance. Kept explicitly distinct from direct field observations."></textarea>
+              </div>
+
+              <div class="form-actions">
+                <button class="button button-secondary" type="button" id="clear-notebook-form">Clear form</button>
+                <button class="button button-primary" type="submit">▧ Generate Field Notes</button>
+              </div>
+              <p class="form-message" id="notebook-message" role="status" aria-live="polite"></p>
+            </form>
+
+            <section id="generated-note-panel" class="content-card generated-note-card" hidden>
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow">STRUCTURED FIELD RECORD</p>
+                  <h2>Review &amp; Edit Field Notes</h2>
+                </div>
+                <span class="status-pill">Structured Draft</span>
+              </div>
+              <p class="muted">Generated deterministically in your browser from your recorded inputs. You can edit the text directly before saving to your records.</p>
+              
+              <label for="generated-note" class="visually-hidden">Organized observation</label>
+              <textarea id="generated-note" name="generatedNote" rows="20" placeholder="Your formatted field notes will appear here."></textarea>
+              
+              <div class="form-actions">
+                <button class="button button-primary" type="button" id="save-observation">Save to Observations</button>
+                <button class="button button-secondary" type="button" id="btn-copy-note">📋 Copy Note</button>
+                <button class="button button-secondary" type="button" id="btn-download-note">⬇ Download (.txt)</button>
+                <button class="button button-secondary" type="button" id="regenerate-note">Regenerate</button>
+              </div>
+              <p class="form-message" id="generated-note-message" role="status" aria-live="polite"></p>
+            </section>
+          </section>
+          
+          
+          <!-- FIELD TOOLS -->
+          <section class="page-view" id="view-field-tools" data-page="field-tools">
+            <div class="page-intro">
+              <p class="eyebrow">GEOLOGICAL FIELD TOOLS</p>
+              <h1>Field Tools &amp; Calculators</h1>
+              <p class="muted">Scientifically calibrated calculators for map scaling, coordinate conversions, traverses, slope gradients, and structural geology.</p>
+            </div>
+
+            <!-- Top Calculator Selector Tabs -->
+            <div class="calc-main-tabs" role="tablist" aria-label="Field Tools Calculators">
+              <button class="calc-main-tab is-active" type="button" role="tab" id="tab-btn-map-coord" aria-selected="true" data-calc-group="map-coord">
+                <span class="calc-tab-icon" aria-hidden="true">🗺</span>
+                <span class="calc-tab-title">Map Scale &amp; Coordinate Calculator</span>
+              </button>
+              <button class="calc-main-tab" type="button" role="tab" id="tab-btn-traverse" aria-selected="false" data-calc-group="traverse">
+                <span class="calc-tab-icon" aria-hidden="true">📐</span>
+                <span class="calc-tab-title">Geological Traverse &amp; Elevation</span>
+              </button>
+              <button class="calc-main-tab" type="button" role="tab" id="tab-btn-structural" aria-selected="false" data-calc-group="structural">
+                <span class="calc-tab-icon" aria-hidden="true">🧭</span>
+                <span class="calc-tab-title">Structural Geology Calculator</span>
+              </button>
+            </div>
+
+            <!-- ========================================================
+                 CALCULATOR A: MAP SCALE & COORDINATE CALCULATOR
+                 ======================================================== -->
+            <div class="calc-container-panel is-active" id="panel-calc-map-coord" role="tabpanel" aria-labelledby="tab-btn-map-coord">
+              <!-- Internal Sub-tabs: Map Scale vs Coordinate Converter -->
+              <div class="calc-subtabs" role="tablist" aria-label="Map Scale and Coordinate modes">
+                <button class="calc-subtab is-active" type="button" data-subpanel="map-scale">Map Scale Calculator</button>
+                <button class="calc-subtab" type="button" data-subpanel="coord-converter">Coordinate Converter</button>
+              </div>
+
+              <!-- SUBPANEL A1: MAP SCALE CALCULATOR -->
+              <div class="calc-subpanel is-active" id="subpanel-map-scale">
+                <div class="calc-mode-bar">
+                  <label for="ms-mode-select">Calculation Mode:</label>
+                  <select id="ms-mode-select" class="calc-mode-select">
+                    <option value="m1">Mode 1: Map Distance → Ground Distance</option>
+                    <option value="m2">Mode 2: Ground Distance → Map Distance</option>
+                    <option value="m3">Mode 3: Calculate Map Scale (RF)</option>
+                  </select>
+                </div>
+
+                <!-- Mode 1: Map Distance -> Ground Distance -->
+                <div class="calc-mode-panel is-active" id="ms-mode-1">
+                  <div class="form-grid">
+                    <div class="field-group">
+                      <label for="ms-m1-map-dist">Distance measured on map <span class="required">*</span></label>
+                      <input id="ms-m1-map-dist" type="number" step="any" min="0" placeholder="e.g. 4">
+                    </div>
+                    <div class="field-group">
+                      <label for="ms-m1-map-unit">Map distance unit</label>
+                      <select id="ms-m1-map-unit">
+                        <option value="cm" selected>Centimetres (cm)</option>
+                        <option value="mm">Millimetres (mm)</option>
+                        <option value="m">Metres (m)</option>
+                        <option value="in">Inches (in)</option>
+                      </select>
+                    </div>
+                    <div class="field-group">
+                      <label for="ms-m1-scale">Scale RF denominator (1:n) <span class="required">*</span></label>
+                      <input id="ms-m1-scale" type="number" step="any" min="1" placeholder="e.g. 50000 for 1:50,000">
+                    </div>
+                    <div class="field-group">
+                      <label for="ms-m1-out-unit">Preferred output unit</label>
+                      <select id="ms-m1-out-unit">
+                        <option value="m" selected>Metres (m)</option>
+                        <option value="km">Kilometres (km)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="calc-actions">
+                    <button type="button" class="button button-primary" id="btn-ms-m1-calc">Calculate Ground Distance</button>
+                    <button type="button" class="button button-secondary" id="btn-ms-m1-reset">Reset</button>
+                  </div>
+                  <div class="calc-feedback error-text" id="ms-m1-error" hidden></div>
+                  <div class="calc-results-box" id="ms-m1-results" hidden>
+                    <div class="calc-res-header">
+                      <span class="calc-res-label">Actual Ground Distance</span>
+                      <strong class="calc-res-val" id="ms-m1-val">—</strong>
+                    </div>
+                    <div class="calc-res-detail" id="ms-m1-equiv"></div>
+                    <div class="calc-res-formula">
+                      <strong>Formula:</strong> <code>Ground distance = Map distance × Scale denominator</code>
+                    </div>
+                    <p class="calc-res-explanation" id="ms-m1-expl"></p>
+                  </div>
+                </div>
+
+                <!-- Mode 2: Ground Distance -> Map Distance -->
+                <div class="calc-mode-panel" id="ms-mode-2" hidden>
+                  <div class="form-grid">
+                    <div class="field-group">
+                      <label for="ms-m2-ground-dist">Actual ground distance <span class="required">*</span></label>
+                      <input id="ms-m2-ground-dist" type="number" step="any" min="0" placeholder="e.g. 1">
+                    </div>
+                    <div class="field-group">
+                      <label for="ms-m2-ground-unit">Ground distance unit</label>
+                      <select id="ms-m2-ground-unit">
+                        <option value="km" selected>Kilometres (km)</option>
+                        <option value="m">Metres (m)</option>
+                        <option value="cm">Centimetres (cm)</option>
+                        <option value="mm">Millimetres (mm)</option>
+                      </select>
+                    </div>
+                    <div class="field-group">
+                      <label for="ms-m2-scale">Scale RF denominator (1:n) <span class="required">*</span></label>
+                      <input id="ms-m2-scale" type="number" step="any" min="1" placeholder="e.g. 25000 for 1:25,000">
+                    </div>
+                    <div class="field-group">
+                      <label for="ms-m2-map-unit">Desired map distance unit</label>
+                      <select id="ms-m2-map-unit">
+                        <option value="cm" selected>Centimetres (cm)</option>
+                        <option value="mm">Millimetres (mm)</option>
+                        <option value="in">Inches (in)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="calc-actions">
+                    <button type="button" class="button button-primary" id="btn-ms-m2-calc">Calculate Map Distance</button>
+                    <button type="button" class="button button-secondary" id="btn-ms-m2-reset">Reset</button>
+                  </div>
+                  <div class="calc-feedback error-text" id="ms-m2-error" hidden></div>
+                  <div class="calc-results-box" id="ms-m2-results" hidden>
+                    <div class="calc-res-header">
+                      <span class="calc-res-label">Distance to Draw on Map</span>
+                      <strong class="calc-res-val" id="ms-m2-val">—</strong>
+                    </div>
+                    <div class="calc-res-formula">
+                      <strong>Formula:</strong> <code>Map distance = Ground distance ÷ Scale denominator</code>
+                    </div>
+                    <p class="calc-res-explanation" id="ms-m2-expl"></p>
+                  </div>
+                </div>
+
+                <!-- Mode 3: Calculate Map Scale (RF) -->
+                <div class="calc-mode-panel" id="ms-mode-3" hidden>
+                  <div class="form-grid">
+                    <div class="field-group">
+                      <label for="ms-m3-map-dist">Measured map distance <span class="required">*</span></label>
+                      <input id="ms-m3-map-dist" type="number" step="any" min="0" placeholder="e.g. 2">
+                    </div>
+                    <div class="field-group">
+                      <label for="ms-m3-map-unit">Map distance unit</label>
+                      <select id="ms-m3-map-unit">
+                        <option value="cm" selected>Centimetres (cm)</option>
+                        <option value="mm">Millimetres (mm)</option>
+                        <option value="m">Metres (m)</option>
+                        <option value="in">Inches (in)</option>
+                      </select>
+                    </div>
+                    <div class="field-group">
+                      <label for="ms-m3-ground-dist">Corresponding ground distance <span class="required">*</span></label>
+                      <input id="ms-m3-ground-dist" type="number" step="any" min="0" placeholder="e.g. 500">
+                    </div>
+                    <div class="field-group">
+                      <label for="ms-m3-ground-unit">Ground distance unit</label>
+                      <select id="ms-m3-ground-unit">
+                        <option value="m" selected>Metres (m)</option>
+                        <option value="km">Kilometres (km)</option>
+                        <option value="cm">Centimetres (cm)</option>
+                        <option value="mm">Millimetres (mm)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="calc-actions">
+                    <button type="button" class="button button-primary" id="btn-ms-m3-calc">Calculate Scale (RF)</button>
+                    <button type="button" class="button button-secondary" id="btn-ms-m3-reset">Reset</button>
+                  </div>
+                  <div class="calc-feedback error-text" id="ms-m3-error" hidden></div>
+                  <div class="calc-results-box" id="ms-m3-results" hidden>
+                    <div class="calc-res-header">
+                      <span class="calc-res-label">Representative Fraction (Scale)</span>
+                      <strong class="calc-res-val" id="ms-m3-val">—</strong>
+                    </div>
+                    <div class="calc-res-detail" id="ms-m3-denom"></div>
+                    <div class="calc-res-formula">
+                      <strong>Formula:</strong> <code>RF denominator = Ground distance ÷ Map distance</code>
+                    </div>
+                    <p class="calc-res-explanation" id="ms-m3-expl"></p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- SUBPANEL A2: COORDINATE CONVERTER -->
+              <div class="calc-subpanel" id="subpanel-coord-converter" hidden>
+                <div class="calc-mode-bar">
+                  <label for="cc-mode-select">Conversion Mode:</label>
+                  <select id="cc-mode-select" class="calc-mode-select">
+                    <option value="m1">Mode 1: DMS → Decimal Degrees</option>
+                    <option value="m2">Mode 2: Decimal Degrees → DMS</option>
+                  </select>
+                </div>
+
+                <!-- Mode 1: DMS -> Decimal Degrees -->
+                <div class="calc-mode-panel is-active" id="cc-mode-1">
+                  <div class="form-grid">
+                    <div class="field-group">
+                      <label for="cc-m1-deg">Degrees (°) <span class="required">*</span></label>
+                      <input id="cc-m1-deg" type="number" min="0" max="180" placeholder="e.g. 4">
+                    </div>
+                    <div class="field-group">
+                      <label for="cc-m1-min">Minutes (′) <span class="required">*</span></label>
+                      <input id="cc-m1-min" type="number" min="0" max="59.999" step="any" placeholder="e.g. 48">
+                    </div>
+                    <div class="field-group">
+                      <label for="cc-m1-sec">Seconds (″) <span class="required">*</span></label>
+                      <input id="cc-m1-sec" type="number" min="0" max="59.999" step="any" placeholder="e.g. 0">
+                    </div>
+                    <div class="field-group">
+                      <label for="cc-m1-hemi">Hemisphere <span class="required">*</span></label>
+                      <select id="cc-m1-hemi">
+                        <option value="N" selected>North (N) — Latitude</option>
+                        <option value="S">South (S) — Latitude</option>
+                        <option value="E">East (E) — Longitude</option>
+                        <option value="W">West (W) — Longitude</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="calc-actions">
+                    <button type="button" class="button button-primary" id="btn-cc-m1-calc">Convert to Decimal Degrees</button>
+                    <button type="button" class="button button-secondary" id="btn-cc-m1-reset">Reset</button>
+                  </div>
+                  <div class="calc-feedback error-text" id="cc-m1-error" hidden></div>
+                  <div class="calc-results-box" id="cc-m1-results" hidden>
+                    <div class="calc-res-header">
+                      <span class="calc-res-label" id="cc-m1-axis-label">Decimal Degrees</span>
+                      <strong class="calc-res-val" id="cc-m1-val">—</strong>
+                    </div>
+                    <div class="calc-res-detail" id="cc-m1-sign-note"></div>
+                    <div class="calc-res-formula">
+                      <strong>Formula:</strong> <code>Decimal degrees = Degrees + (Minutes / 60) + (Seconds / 3600)</code>
+                    </div>
+                    <p class="calc-res-explanation">Southern (S) and Western (W) coordinates are negative; Northern (N) and Eastern (E) are positive.</p>
+                  </div>
+                </div>
+
+                <!-- Mode 2: Decimal Degrees -> DMS -->
+                <div class="calc-mode-panel" id="cc-mode-2" hidden>
+                  <div class="form-grid">
+                    <div class="field-group">
+                      <label for="cc-m2-lat">Decimal Latitude (-90° to +90°) <span class="required">*</span></label>
+                      <input id="cc-m2-lat" type="number" step="any" min="-90" max="90" placeholder="e.g. 4.8">
+                    </div>
+                    <div class="field-group">
+                      <label for="cc-m2-lng">Decimal Longitude (-180° to +180°) <span class="required">*</span></label>
+                      <input id="cc-m2-lng" type="number" step="any" min="-180" max="180" placeholder="e.g. 7.0">
+                    </div>
+                  </div>
+                  <div class="calc-actions">
+                    <button type="button" class="button button-primary" id="btn-cc-m2-calc">Convert to DMS</button>
+                    <button type="button" class="button button-secondary" id="btn-cc-m2-reset">Reset</button>
+                  </div>
+                  <div class="calc-feedback error-text" id="cc-m2-error" hidden></div>
+                  <div class="calc-results-box" id="cc-m2-results" hidden>
+                    <div class="calc-res-grid">
+                      <div class="calc-res-col">
+                        <span class="calc-res-label">Latitude (DMS)</span>
+                        <strong class="calc-res-val" id="cc-m2-lat-val">—</strong>
+                      </div>
+                      <div class="calc-res-col">
+                        <span class="calc-res-label">Longitude (DMS)</span>
+                        <strong class="calc-res-val" id="cc-m2-lng-val">—</strong>
+                      </div>
+                    </div>
+                    <div class="calc-res-formula">
+                      <strong>Method:</strong> Whole degrees, then fractional degrees × 60 for minutes, remaining fractional minutes × 60 for seconds.
+                    </div>
+                    <p class="calc-res-explanation">Formatted to standard geological notation with hemisphere identifiers (N/S, E/W).</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ========================================================
+                 CALCULATOR B: GEOLOGICAL TRAVERSE & ELEVATION CALCULATOR
+                 ======================================================== -->
+            <div class="calc-container-panel" id="panel-calc-traverse" role="tabpanel" aria-labelledby="tab-btn-traverse" hidden>
+              <div class="calc-mode-bar">
+                <label for="tr-mode-select">Traverse Calculation Mode:</label>
+                <select id="tr-mode-select" class="calc-mode-select">
+                  <option value="b1">B1: Slope Distance → Horizontal Distance</option>
+                  <option value="b2">B2: Elevation Difference</option>
+                  <option value="b3">B3: Slope Gradient &amp; Angle</option>
+                </select>
+              </div>
+
+              <!-- Mode B1: Slope Distance -> Horizontal Distance -->
+              <div class="calc-mode-panel is-active" id="tr-mode-1">
+                <div class="form-grid">
+                  <div class="field-group">
+                    <label for="tr-b1-slope-dist">Slope distance along ground <span class="required">*</span></label>
+                    <input id="tr-b1-slope-dist" type="number" step="any" min="0" placeholder="e.g. 100">
+                  </div>
+                  <div class="field-group">
+                    <label for="tr-b1-dist-unit">Distance unit</label>
+                    <select id="tr-b1-dist-unit">
+                      <option value="m" selected>Metres (m)</option>
+                      <option value="km">Kilometres (km)</option>
+                      <option value="ft">Feet (ft)</option>
+                    </select>
+                  </div>
+                  <div class="field-group">
+                    <label for="tr-b1-angle">Slope angle from horizontal (0°–90°) <span class="required">*</span></label>
+                    <input id="tr-b1-angle" type="number" step="any" min="0" max="90" placeholder="e.g. 30">
+                  </div>
+                  <div class="field-group">
+                    <label for="tr-b1-dir">Vertical direction</label>
+                    <select id="tr-b1-dir">
+                      <option value="uphill" selected>Uphill (elevation gain)</option>
+                      <option value="downhill">Downhill (elevation drop)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="calc-actions">
+                  <button type="button" class="button button-primary" id="btn-tr-b1-calc">Calculate Horizontal &amp; Vertical</button>
+                  <button type="button" class="button button-secondary" id="btn-tr-b1-reset">Reset</button>
+                </div>
+                <div class="calc-feedback error-text" id="tr-b1-error" hidden></div>
+                <div class="calc-results-box" id="tr-b1-results" hidden>
+                  <div class="calc-res-grid">
+                    <div class="calc-res-col">
+                      <span class="calc-res-label">Horizontal Distance</span>
+                      <strong class="calc-res-val" id="tr-b1-horiz-val">—</strong>
+                    </div>
+                    <div class="calc-res-col">
+                      <span class="calc-res-label">Vertical Elevation Change</span>
+                      <strong class="calc-res-val" id="tr-b1-vert-val">—</strong>
+                    </div>
+                  </div>
+                  <div class="calc-res-detail" id="tr-b1-dir-label"></div>
+                  <div class="calc-res-formula">
+                    <strong>Formulas:</strong>
+                    <code>Horizontal distance = Slope distance × cos(angle)</code><br>
+                    <code>Vertical change magnitude = Slope distance × sin(angle)</code>
+                  </div>
+                  <p class="calc-res-explanation">Note: This calculation assumes the measured slope distance and angle describe the same straight traverse segment.</p>
+                </div>
+              </div>
+
+              <!-- Mode B2: Elevation Difference -->
+              <div class="calc-mode-panel" id="tr-mode-2" hidden>
+                <div class="form-grid">
+                  <div class="field-group">
+                    <label for="tr-b2-start-elev">Starting elevation <span class="required">*</span></label>
+                    <input id="tr-b2-start-elev" type="number" step="any" placeholder="e.g. 25">
+                  </div>
+                  <div class="field-group">
+                    <label for="tr-b2-end-elev">Ending elevation <span class="required">*</span></label>
+                    <input id="tr-b2-end-elev" type="number" step="any" placeholder="e.g. 64">
+                  </div>
+                  <div class="field-group">
+                    <label for="tr-b2-unit">Elevation unit</label>
+                    <select id="tr-b2-unit">
+                      <option value="m" selected>Metres (m)</option>
+                      <option value="ft">Feet (ft)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="calc-actions">
+                  <button type="button" class="button button-primary" id="btn-tr-b2-calc">Calculate Elevation Difference</button>
+                  <button type="button" class="button button-secondary" id="btn-tr-b2-reset">Reset</button>
+                </div>
+                <div class="calc-feedback error-text" id="tr-b2-error" hidden></div>
+                <div class="calc-results-box" id="tr-b2-results" hidden>
+                  <div class="calc-res-grid">
+                    <div class="calc-res-col">
+                      <span class="calc-res-label">Signed Elevation Change</span>
+                      <strong class="calc-res-val" id="tr-b2-signed-val">—</strong>
+                    </div>
+                    <div class="calc-res-col">
+                      <span class="calc-res-label">Absolute Elevation Difference</span>
+                      <strong class="calc-res-val" id="tr-b2-abs-val">—</strong>
+                    </div>
+                  </div>
+                  <div class="calc-res-detail" id="tr-b2-status"></div>
+                  <div class="calc-res-formula">
+                    <strong>Formula:</strong> <code>Elevation change = Ending elevation − Starting elevation</code>
+                  </div>
+                  <p class="calc-res-explanation" id="tr-b2-expl"></p>
+                </div>
+              </div>
+
+              <!-- Mode B3: Slope Gradient & Angle -->
+              <div class="calc-mode-panel" id="tr-mode-3" hidden>
+                <div class="form-grid">
+                  <div class="field-group">
+                    <label for="tr-b3-horiz-dist">Horizontal distance <span class="required">*</span></label>
+                    <input id="tr-b3-horiz-dist" type="number" step="any" min="0" placeholder="e.g. 100">
+                  </div>
+                  <div class="field-group">
+                    <label for="tr-b3-horiz-unit">Horizontal distance unit</label>
+                    <select id="tr-b3-horiz-unit">
+                      <option value="m" selected>Metres (m)</option>
+                      <option value="km">Kilometres (km)</option>
+                      <option value="ft">Feet (ft)</option>
+                    </select>
+                  </div>
+                  <div class="field-group">
+                    <label for="tr-b3-vert-diff">Vertical elevation difference <span class="required">*</span></label>
+                    <input id="tr-b3-vert-diff" type="number" step="any" min="0" placeholder="e.g. 10">
+                  </div>
+                  <div class="field-group">
+                    <label for="tr-b3-vert-unit">Vertical difference unit</label>
+                    <select id="tr-b3-vert-unit">
+                      <option value="m" selected>Metres (m)</option>
+                      <option value="km">Kilometres (km)</option>
+                      <option value="ft">Feet (ft)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="calc-actions">
+                  <button type="button" class="button button-primary" id="btn-tr-b3-calc">Calculate Slope &amp; Gradient</button>
+                  <button type="button" class="button button-secondary" id="btn-tr-b3-reset">Reset</button>
+                </div>
+                <div class="calc-feedback error-text" id="tr-b3-error" hidden></div>
+                <div class="calc-results-box" id="tr-b3-results" hidden>
+                  <div class="calc-res-grid">
+                    <div class="calc-res-col">
+                      <span class="calc-res-label">Slope Angle</span>
+                      <strong class="calc-res-val" id="tr-b3-angle-val">—</strong>
+                    </div>
+                    <div class="calc-res-col">
+                      <span class="calc-res-label">Gradient Percentage</span>
+                      <strong class="calc-res-val" id="tr-b3-pct-val">—</strong>
+                    </div>
+                    <div class="calc-res-col">
+                      <span class="calc-res-label">Gradient Ratio (1:n)</span>
+                      <strong class="calc-res-val" id="tr-b3-ratio-val">—</strong>
+                    </div>
+                  </div>
+                  <div class="calc-res-formula">
+                    <strong>Formulas:</strong><br>
+                    <code>Slope angle = arctan(|vertical difference| ÷ horizontal distance)</code><br>
+                    <code>Gradient percentage = (|vertical difference| ÷ horizontal distance) × 100</code><br>
+                    <code>Gradient ratio = 1 : (horizontal distance ÷ |vertical difference|)</code>
+                  </div>
+                  <p class="calc-res-explanation" id="tr-b3-expl"></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- ========================================================
+                 CALCULATOR C: STRUCTURAL GEOLOGY CALCULATOR
+                 ======================================================== -->
+            <div class="calc-container-panel" id="panel-calc-structural" role="tabpanel" aria-labelledby="tab-btn-structural" hidden>
+              <div class="calc-mode-bar">
+                <label for="st-mode-select">Structural Mode:</label>
+                <select id="st-mode-select" class="calc-mode-select">
+                  <option value="c1">C1: Strike &amp; Dip Notation Converter</option>
+                  <option value="c2">C2: Apparent Dip Calculator</option>
+                  <option value="c3">C3: Angular Difference Between Two Azimuths</option>
+                  <option value="c4">C4: Trend &amp; Plunge Converter</option>
+                </select>
+              </div>
+
+              <!-- Mode C1: Strike & Dip Notation Converter -->
+              <div class="calc-mode-panel is-active" id="st-mode-1">
+                <div class="form-grid">
+                  <div class="field-group">
+                    <label for="st-c1-strike">Strike azimuth (0°–360°) <span class="required">*</span></label>
+                    <input id="st-c1-strike" type="number" step="any" min="0" max="360" placeholder="e.g. 45">
+                  </div>
+                  <div class="field-group">
+                    <label for="st-c1-dip">Dip angle (0°–90°) <span class="required">*</span></label>
+                    <input id="st-c1-dip" type="number" step="any" min="0" max="90" placeholder="e.g. 30">
+                  </div>
+                  <div class="field-group">
+                    <label for="st-c1-dip-type">Dip direction format</label>
+                    <select id="st-c1-dip-type">
+                      <option value="compass" selected>Compass Quadrant (N, NE, E, SE...)</option>
+                      <option value="azimuth">Numeric Azimuth (0°–360°)</option>
+                    </select>
+                  </div>
+                  <div class="field-group" id="st-c1-compass-wrap">
+                    <label for="st-c1-dip-compass">Dip direction quadrant</label>
+                    <select id="st-c1-dip-compass">
+                      <option value="N">North (N)</option>
+                      <option value="NE">Northeast (NE)</option>
+                      <option value="E">East (E)</option>
+                      <option value="SE" selected>Southeast (SE)</option>
+                      <option value="S">South (S)</option>
+                      <option value="SW">Southwest (SW)</option>
+                      <option value="W">West (W)</option>
+                      <option value="NW">Northwest (NW)</option>
+                    </select>
+                  </div>
+                  <div class="field-group" id="st-c1-azimuth-wrap" hidden>
+                    <label for="st-c1-dip-azimuth">Dip direction azimuth (0°–360°)</label>
+                    <input id="st-c1-dip-azimuth" type="number" step="any" min="0" max="360" placeholder="e.g. 135">
+                  </div>
+                </div>
+                <div class="calc-actions">
+                  <button type="button" class="button button-primary" id="btn-st-c1-calc">Format &amp; Validate Orientation</button>
+                  <button type="button" class="button button-secondary" id="btn-st-c1-reset">Reset</button>
+                </div>
+                <div class="calc-feedback error-text" id="st-c1-error" hidden></div>
+                <div class="calc-feedback warning-text" id="st-c1-warning" hidden></div>
+                <div class="calc-results-box" id="st-c1-results" hidden>
+                  <div class="calc-res-header">
+                    <span class="calc-res-label">Standard Field Notation</span>
+                    <strong class="calc-res-val" id="st-c1-notation">—</strong>
+                  </div>
+                  <div class="calc-res-grid">
+                    <div class="calc-res-col">
+                      <small>Strike Azimuth</small>
+                      <strong id="st-c1-out-strike">—</strong>
+                    </div>
+                    <div class="calc-res-col">
+                      <small>Dip Angle</small>
+                      <strong id="st-c1-out-dip">—</strong>
+                    </div>
+                    <div class="calc-res-col">
+                      <small>Dip Direction</small>
+                      <strong id="st-c1-out-dipdir">—</strong>
+                    </div>
+                  </div>
+                  <p class="calc-res-explanation" id="st-c1-expl"></p>
+                </div>
+              </div>
+
+              <!-- Mode C2: Apparent Dip Calculator -->
+              <div class="calc-mode-panel" id="st-mode-2" hidden>
+                <div class="form-grid">
+                  <div class="field-group">
+                    <label for="st-c2-true-dip">True dip angle (0°–90°) <span class="required">*</span></label>
+                    <input id="st-c2-true-dip" type="number" step="any" min="0" max="90" placeholder="e.g. 30">
+                  </div>
+                  <div class="field-group">
+                    <label for="st-c2-dip-dir">True dip direction azimuth (0°–360°) <span class="required">*</span></label>
+                    <input id="st-c2-dip-dir" type="number" step="any" min="0" max="360" placeholder="e.g. 135">
+                  </div>
+                  <div class="field-group">
+                    <label for="st-c2-meas-dir">Measurement direction azimuth (0°–360°) <span class="required">*</span></label>
+                    <input id="st-c2-meas-dir" type="number" step="any" min="0" max="360" placeholder="e.g. 180">
+                  </div>
+                </div>
+                <div class="calc-actions">
+                  <button type="button" class="button button-primary" id="btn-st-c2-calc">Calculate Apparent Dip</button>
+                  <button type="button" class="button button-secondary" id="btn-st-c2-reset">Reset</button>
+                </div>
+                <div class="calc-feedback error-text" id="st-c2-error" hidden></div>
+                <div class="calc-results-box" id="st-c2-results" hidden>
+                  <div class="calc-res-grid">
+                    <div class="calc-res-col">
+                      <span class="calc-res-label">Calculated Apparent Dip</span>
+                      <strong class="calc-res-val" id="st-c2-app-dip">—</strong>
+                    </div>
+                    <div class="calc-res-col">
+                      <span class="calc-res-label">True Dip (Comparison)</span>
+                      <strong class="calc-res-val" id="st-c2-true-comp">—</strong>
+                    </div>
+                  </div>
+                  <div class="calc-res-formula">
+                    <strong>Formula:</strong> <code>tan(apparent dip) = tan(true dip) × |sin(measurement azimuth − strike azimuth)|</code>
+                  </div>
+                  <p class="calc-res-explanation" id="st-c2-expl"></p>
+                </div>
+              </div>
+
+              <!-- Mode C3: Angular Difference Between Two Azimuths -->
+              <div class="calc-mode-panel" id="st-mode-3" hidden>
+                <div class="form-grid">
+                  <div class="field-group">
+                    <label for="st-c3-az1">First azimuth (0°–360°) <span class="required">*</span></label>
+                    <input id="st-c3-az1" type="number" step="any" min="0" max="360" placeholder="e.g. 350">
+                  </div>
+                  <div class="field-group">
+                    <label for="st-c3-az2">Second azimuth (0°–360°) <span class="required">*</span></label>
+                    <input id="st-c3-az2" type="number" step="any" min="0" max="360" placeholder="e.g. 10">
+                  </div>
+                  <div class="field-group">
+                    <label for="st-c3-mode">Comparison mode</label>
+                    <select id="st-c3-mode">
+                      <option value="smallest" selected>Smallest undirected difference (0°–180°)</option>
+                      <option value="clockwise">Directed clockwise difference (0°–360°)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="calc-actions">
+                  <button type="button" class="button button-primary" id="btn-st-c3-calc">Calculate Angular Difference</button>
+                  <button type="button" class="button button-secondary" id="btn-st-c3-reset">Reset</button>
+                </div>
+                <div class="calc-feedback error-text" id="st-c3-error" hidden></div>
+                <div class="calc-results-box" id="st-c3-results" hidden>
+                  <div class="calc-res-header">
+                    <span class="calc-res-label">Angular Difference</span>
+                    <strong class="calc-res-val" id="st-c3-diff">—</strong>
+                  </div>
+                  <div class="calc-res-detail" id="st-c3-dir"></div>
+                  <p class="calc-res-explanation">Note: This tool compares horizontal azimuth directions only. It does not calculate the full three-dimensional dihedral angle between geological planes.</p>
+                </div>
+              </div>
+
+              <!-- Mode C4: Trend & Plunge Converter -->
+              <div class="calc-mode-panel" id="st-mode-4" hidden>
+                <div class="form-grid">
+                  <div class="field-group">
+                    <label for="st-c4-trend">Trend azimuth (0°–360°) <span class="required">*</span></label>
+                    <input id="st-c4-trend" type="number" step="any" min="0" max="360" placeholder="e.g. 120">
+                  </div>
+                  <div class="field-group">
+                    <label for="st-c4-plunge">Plunge angle (0°–90°) <span class="required">*</span></label>
+                    <input id="st-c4-plunge" type="number" step="any" min="0" max="90" placeholder="e.g. 25">
+                  </div>
+                  <div class="field-group">
+                    <label for="st-c4-convention">Plunge convention</label>
+                    <input id="st-c4-convention" type="text" value="Downward plunge from horizontal" readonly>
+                  </div>
+                </div>
+                <div class="calc-actions">
+                  <button type="button" class="button button-primary" id="btn-st-c4-calc">Convert Trend &amp; Plunge</button>
+                  <button type="button" class="button button-secondary" id="btn-st-c4-reset">Reset</button>
+                </div>
+                <div class="calc-feedback error-text" id="st-c4-error" hidden></div>
+                <div class="calc-results-box" id="st-c4-results" hidden>
+                  <div class="calc-res-header">
+                    <span class="calc-res-label">Standard Linear Notation</span>
+                    <strong class="calc-res-val" id="st-c4-notation">—</strong>
+                  </div>
+                  <div class="calc-res-grid">
+                    <div class="calc-res-col">
+                      <small>Trend Direction</small>
+                      <strong id="st-c4-trend-dir">—</strong>
+                    </div>
+                    <div class="calc-res-col">
+                      <small>Plunge Inclination</small>
+                      <strong id="st-c4-plunge-val">—</strong>
+                    </div>
+                  </div>
+                  <p class="calc-res-explanation">Trend represents the horizontal azimuth bearing of a line's downward direction, and plunge is its angle below the horizontal. Lineations (striae, fold hinges, mineral stretching) are linear features distinct from planar strike and dip.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- OBSERVATIONS -->
+          <section class="page-view" id="view-observations" data-page="observations">
+            <div class="page-intro page-intro-actions"><div><p class="eyebrow">YOUR FIELD RECORDS</p><h1>Saved Observations</h1><p class="muted">Review, edit and manage the geological records you have saved.</p></div><button class="button button-primary" type="button" data-view="field-notebook">＋ New observation</button></div>
+            <div class="observation-toolbar"><label class="search-input" for="observation-search"><span aria-hidden="true">⌕</span><input id="observation-search" type="search" placeholder="Search by site name or notes..."></label><label class="visually-hidden" for="observation-sort">Sort observations</label><select id="observation-sort"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="site">Site number</option></select></div>
+            <div id="observations-list" class="observation-list"><div class="empty-state"><span class="empty-icon">☷</span><strong>Your saved observations will appear here</strong><p>Generate and save your first organized field note to get started.</p><button class="button button-secondary" type="button" data-view="field-notebook">Create an observation</button></div></div>
+          </section>
+
+          <!-- PROFILE -->
+          <section class="page-view" id="view-profile" data-page="profile">
+            <div class="page-intro"><p class="eyebrow">YOUR ACCOUNT</p><h1>Profile & Settings</h1><p class="muted">Manage your GeoGuide profile and account preferences.</p></div>
+            <form id="profile-form" class="content-card form-card">
+              <div class="field-group"><label for="profile-name">Full name</label><input id="profile-name" name="fullName" type="text" autocomplete="name" placeholder="Your full name"></div>
+              <div class="field-group section-spaced"><label for="profile-email">Email address</label><input id="profile-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" readonly><small>Your email is managed by the authentication service.</small></div>
+              <div class="form-actions"><button class="button button-primary" type="submit">Save profile</button></div>
+              <p class="form-message" id="profile-message" role="status" aria-live="polite"></p>
+            </form>
+          </section>
+
+          <!-- ABOUT / OWNERSHIP -->
+          <section class="page-view" id="view-about" data-page="about">
+            <div class="page-intro"><p class="eyebrow">ABOUT THE PROJECT</p><h1>About GeoGuide</h1><p class="muted">Explore. Identify. Understand.</p></div>
+            <article class="content-card about-card">
+              <div class="about-brand-mark" aria-hidden="true">G</div>
+              <h2>A practical companion for geology learners.</h2>
+              <p>GeoGuide is designed to help students explore rocks and minerals, organize field observations, and build a useful geological reference. Its AI-assisted tools are intended to support learning and documentation, not replace laboratory testing, field evidence, or expert judgment.</p>
+              <div class="about-feature-list">
+                <div><span>01</span><div><strong>Explore</strong><p>Browse geological reference material.</p></div></div>
+                <div><span>02</span><div><strong>Identify</strong><p>Consider likely rock matches from observed evidence.</p></div></div>
+                <div><span>03</span><div><strong>Understand</strong><p>Organize field notes and reflect on geological observations.</p></div></div>
+              </div>
+              <footer class="project-credit">
+                <p>Designed, founded and developed by</p>
+                <h3>Royalty Goodluck</h3>
+                <p class="muted">Founder & Developer, GeoGuide</p>
+                <p class="copyright">© <span id="copyright-year">2026</span> Royalty Goodluck. All rights reserved.</p>
+              </footer>
+            </article>
+          </section>
+
+          <footer class="app-footer"><span>GeoGuide · Explore. Identify. Understand.</span><span> Founded and developed by Royalty Goodluck · © <span class="footer-year">2026</span></span></footer>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- Observation editor / details dialog -->
+  <dialog id="observation-dialog" class="observation-dialog">
+    <form method="dialog" class="dialog-topbar"><h2 id="observation-dialog-title">Observation</h2><button class="icon-button" value="cancel" aria-label="Close dialog">×</button></form>
+    <div id="observation-dialog-content"></div>
+  </dialog>
+
+  <!-- Confirmation dialog for destructive actions -->
+  <dialog id="confirm-delete-dialog" class="confirm-dialog">
+    <form method="dialog">
+      <h2>Delete this observation?</h2>
+      <p>This action may not be reversible. Make sure you no longer need this field record.</p>
+      <div class="form-actions"><button class="button button-secondary" value="cancel">Cancel</button><button class="button button-danger" id="confirm-delete-button" value="confirm">Delete observation</button></div>
+    </form>
+  </dialog>
+
+  <script src="terms-data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
