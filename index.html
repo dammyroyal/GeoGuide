@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#343C2D">
+  <meta name="description" content="GeoGuide: Explore. Identify. Understand. A practical rock, mineral, and field observation companion.">
+  <title>GeoGuide — Explore. Identify. Understand.</title>
+  <link rel="icon" href="assets/geoguide-icon.png" type="image/png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!--
+    GeoGuide — Explore. Identify. Understand.
+    Frontend structure only. styles.css and app.js are separate files.
+    Authentication, persistent observations, and Gemini AI require the backend
+    and Supabase configuration described in the project setup.
+  -->
+
+  <div class="app-shell">
+    <!-- AUTHENTICATION -->
+    <main id="auth-screen" class="auth-screen">
+      <section class="auth-brand" aria-label="GeoGuide introduction">
+        <a class="brand brand-large" href="#home" aria-label="GeoGuide home">
+          <span class="brand-mark" aria-hidden="true">G</span>
+          <span class="brand-copy">
+            <strong>GeoGuide</strong>
+            <small>Explore. Identify. Understand.</small>
+          </span>
+        </a>
+        <div class="auth-brand-message">
+          <p class="eyebrow">YOUR GEOLOGY COMPANION</p>
+          <h1>Understand the ground beneath you.</h1>
+          <p>Explore rocks and minerals, organize field observations, and build your geological knowledge.</p>
+        </div>
+        <p class="auth-image-caption">A practical companion for curious minds and geology students.</p>
+      </section>
+
+      <section class="auth-panel" aria-label="Account access">
+        <div class="auth-tabs" role="tablist" aria-label="Account options">
+          <button class="auth-tab is-active" type="button" id="signin-tab" role="tab"
+                  aria-selected="true" aria-controls="signin-panel" data-auth-tab="signin">Sign in</button>
+          <button class="auth-tab" type="button" id="signup-tab" role="tab"
+                  aria-selected="false" aria-controls="signup-panel" data-auth-tab="signup">Create account</button>
+        </div>
+
+        <form id="signin-form" class="auth-form" data-auth-form="signin" aria-labelledby="signin-tab">
+          <p class="eyebrow">WELCOME BACK</p>
+          <h2>Sign in to GeoGuide</h2>
+          <p class="muted">Continue exploring and managing your field records.</p>
+
+          <label for="signin-email">Email address</label>
+          <input id="signin-email" name="email" type="email" autocomplete="username"
+                 placeholder="you@example.com" required>
+
+          <label for="signin-password">Password</label>
+          <div class="password-field">
+            <input id="signin-password" name="password" type="password" autocomplete="current-password"
+                   placeholder="Enter your password" required>
+            <button class="password-toggle" type="button" data-password-toggle="signin-password"
+                    aria-label="Show password" aria-pressed="false">
+              <span aria-hidden="true">◉</span>
+            </button>
+          </div>
+
+          <div class="form-options">
+            <label class="checkbox-label" for="remember-me">
+              <input id="remember-me" name="rememberMe" type="checkbox">
+              <span>Remember me</span>
+            </label>
+            <button class="text-button" type="button" data-open-panel="forgot-password">Forgot password?</button>
+          </div>
+
+          <button class="button button-primary button-full" type="submit">Sign in</button>
+          <p class="form-message" id="signin-message" role="status" aria-live="polite"></p>
+          <p class="auth-switch">New to GeoGuide? <button type="button" class="text-button" data-auth-tab="signup">Create an account</button></p>
+        </form>
+
+        <form id="signup-form" class="auth-form" data-auth-form="signup" hidden aria-labelledby="signup-tab">
+          <p class="eyebrow">START YOUR JOURNEY</p>
+          <h2>Create your account</h2>
+          <p class="muted">Save your observations and access them across your devices.</p>
+
+          <label for="signup-name">Full name</label>
+          <input id="signup-name" name="fullName" type="text" autocomplete="name"
+                 placeholder="Your full name" required>
+
+          <label for="signup-email">Email address</label>
+          <input id="signup-email" name="email" type="email" autocomplete="email"
+                 placeholder="you@example.com" required>
+
+          <label for="signup-password">Create password</label>
+          <div class="password-field">
+            <input id="signup-password" name="password" type="password" autocomplete="new-password"
+                   minlength="8" placeholder="At least 8 characters" required>
+            <button class="password-toggle" type="button" data-password-toggle="signup-password"
+                    aria-label="Show password" aria-pressed="false">
+              <span aria-hidden="true">◉</span>
+            </button>
+          </div>
+          <p class="field-hint">Use at least 8 characters. Never reuse a password you use elsewhere.</p>
+
+          <label for="signup-confirm-password">Confirm password</label>
+          <div class="password-field">
+            <input id="signup-confirm-password" name="confirmPassword" type="password"
+                   autocomplete="new-password" minlength="8" placeholder="Enter it again" required>
+            <button class="password-toggle" type="button" data-password-toggle="signup-confirm-password"
+                    aria-label="Show password" aria-pressed="false">
+              <span aria-hidden="true">◉</span>
+            </button>
+          </div>
+
+          <button class="button button-primary button-full" type="submit">Create account</button>
+          <p class="form-message" id="signup-message" role="status" aria-live="polite"></p>
+          <p class="auth-switch">Already have an account? <button type="button" class="text-button" data-auth-tab="signin">Sign in</button></p>
+        </form>
+
+        <form id="forgot-password-form" class="auth-form" data-auth-form="forgot-password" hidden>
+          <p class="eyebrow">ACCOUNT RECOVERY</p>
+          <h2>Reset your password</h2>
+          <p class="muted">Enter the email address associated with your GeoGuide account. We'll connect this form to the password-reset service during backend setup.</p>
+          <label for="reset-email">Email address</label>
+          <input id="reset-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+          <button class="button button-primary button-full" type="submit">Send reset link</button>
+          <p class="form-message" id="reset-message" role="status" aria-live="polite"></p>
+          <button class="text-button" type="button" data-auth-tab="signin">Back to sign in</button>
+        </form>
+
+        <p class="auth-legal">By continuing, you agree to use GeoGuide responsibly and respect the accuracy of field data.</p>
+      </section>
+    </main>
+
+    <!-- MAIN APPLICATION: shown after authentication is connected -->
+    <div id="main-app" class="main-app" hidden>
+      <aside class="sidebar" id="sidebar">
+        <a class="brand" href="#dashboard" data-view="dashboard" aria-label="GeoGuide dashboard">
+          <span class="brand-mark" aria-hidden="true">G</span>
+          <span class="brand-copy"><strong>GeoGuide</strong><small>Explore. Identify. Understand.</small></span>
+        </a>
+
+        <nav class="side-nav" aria-label="Main navigation">
+          <p class="nav-heading">WORKSPACE</p>
+          <button class="nav-link is-active" type="button" data-view="dashboard"><span aria-hidden="true">⌂</span> Dashboard</button>
+          <button class="nav-link" type="button" data-view="rock-identifier"><span aria-hidden="true">◇</span> Rock Identifier</button>
+          <button class="nav-link" type="button" data-view="field-notebook"><span aria-hidden="true">▧</span> Field Notebook</button>
+          <button class="nav-link" type="button" data-view="field-tools"><span aria-hidden="true">⌁</span> Field Tools</button>
+          <button class="nav-link" type="button" data-view="observations"><span aria-hidden="true">☷</span> Observations <span class="nav-count" id="observation-count">0</span></button>
+          <p class="nav-heading nav-heading-spaced">ACCOUNT</p>
+          <button class="nav-link" type="button" data-view="profile"><span aria-hidden="true">♙</span> Profile & Settings</button>
+          <button class="nav-link" type="button" data-view="about"><span aria-hidden="true">ⓘ</span> About GeoGuide</button>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <div class="sidebar-help">
+            <span class="help-icon" aria-hidden="true">?</span>
+            <strong>Need a hand?</strong>
+            <p>Explore the guides or review your saved observations.</p>
+            <button type="button" class="text-button" data-view="about">About GeoGuide →</button>
+          </div>
+          <button type="button" class="nav-link signout-button" id="signout-button"><span aria-hidden="true">↪</span> Sign out</button>
+        </div>
+      </aside>
+
+      <div class="app-content">
+        <header class="topbar">
+          <button type="button" class="icon-button mobile-menu-button" id="mobile-menu-button"
+                  aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">☰</button>
+          <form class="global-search" id="global-search-form" role="search">
+            <label class="visually-hidden" for="global-search">Search GeoGuide</label>
+            <span aria-hidden="true">⌕</span>
+            <input id="global-search" name="q" type="search" placeholder="Search rocks, minerals, observations...">
+            <kbd>⌘ K</kbd>
+          </form>
+          <div class="topbar-actions">
+            <button class="icon-button" type="button" data-view="observations" aria-label="Your observations">♧</button>
+            <button class="profile-chip" type="button" data-view="profile">
+              <span class="avatar" id="user-avatar">U</span>
+              <span class="profile-chip-copy"><strong id="header-user-name">Your account</strong><small>Geology explorer</small></span>
+            </button>
+          </div>
+        </header>
+
+        <main class="page-content" id="page-content">
+          <!-- DASHBOARD -->
+          <section class="page-view is-visible" id="view-dashboard" data-page="dashboard">
+            <div class="welcome-row">
+              <div><p class="eyebrow">YOUR GEOLOGY WORKSPACE</p><h1>Welcome back, <span id="welcome-name">Explorer</span></h1>
+                <p class="muted">Pick up where you left off on your geological journey.</p></div>
+              <button class="button button-secondary" type="button" data-view="field-notebook">＋ New observation</button>
+            </div>
+
+            <section class="hero-banner">
+              <div class="hero-content">
+                <p class="eyebrow">EXPLORE. IDENTIFY. UNDERSTAND.</p>
+                <h2>Every rock has a story.</h2>
+                <p>Discover geological materials, record what you observe, and build a reliable field reference.</p>
+                <button class="button button-primary" type="button" data-view="rock-identifier">Identify a rock <span aria-hidden="true">→</span></button>
+              </div>
+              <div class="hero-decoration" aria-hidden="true"><span class="hero-ring"></span><span class="hero-stone"></span></div>
+            </section>
+
+            <div class="section-heading"><div><p class="eyebrow">QUICK ACCESS</p><h2>What would you like to do?</h2></div></div>
+            <div class="quick-grid">
+              <button class="quick-card" type="button" data-view="rock-identifier"><span class="quick-icon">◇</span><strong>Identify a rock</strong><span>Explore possible rock matches with AI.</span><span class="card-arrow">→</span></button>
+              <button class="quick-card" type="button" data-view="field-notebook"><span class="quick-icon">▧</span><strong>Record field notes</strong><span>Turn rough observations into organized notes.</span><span class="card-arrow">→</span></button>
+              <button class="quick-card" type="button" data-view="field-tools"><span class="quick-icon">⌁</span><strong>Field Tools</strong><span>Calculators for pacing, strike &amp; dip, and distance.</span><span class="card-arrow">→</span></button>
+              <button class="quick-card" type="button" data-view="observations"><span class="quick-icon">☷</span><strong>Saved observations</strong><span>Review and edit your field records.</span><span class="card-arrow">→</span></button>
+            </div>
+
+            <div class="dashboard-columns">
+              <section class="content-card"><div class="section-heading"><div><p class="eyebrow">YOUR FIELDWORK</p><h2>Recent observations</h2></div><button class="text-button" type="button" data-view="observations">View all →</button></div>
+                <div id="recent-observations" class="empty-state"><span class="empty-icon">▧</span><strong>No saved observations yet</strong><p>Your saved field records will appear here.</p><button class="button button-secondary" type="button" data-view="field-notebook">Create your first observation</button></div>
+              </section>
+              <section class="content-card featured-card"><p class="eyebrow">KEEP EXPLORING</p><h2>Build your geological eye.</h2><p class="muted">Compare visible features, record evidence, and use your field tools to quantify outcrop measurements.</p><button class="text-button" type="button" data-view="field-tools">Open field tools →</button></section>
+            </div>
+          </section>
+
+          <!-- ROCK IDENTIFIER -->
+          <section class="page-view" id="view-rock-identifier" data-page="rock-identifier">
+            <div class="page-intro"><p class="eyebrow">AI-ASSISTED GEOLOGY</p><h1>Rock Identifier</h1><p class="muted">Describe what you observe. GeoGuide will suggest a leading match and plausible alternatives.</p></div>
+            <form id="rock-identifier-form" class="content-card form-card">
+              <div class="form-section-heading"><span class="step-number">01</span><div><h2>Choose a rock category</h2><p class="muted">Select the category you believe best fits the specimen.</p></div></div>
+              <fieldset class="choice-group">
+                <legend class="visually-hidden">Rock category</legend>
+                <label class="choice-card"><input type="radio" name="rockCategory" value="igneous" required><span class="choice-symbol">◈</span><strong>Igneous</strong><small>Formed from cooled magma or lava</small></label>
+                <label class="choice-card"><input type="radio" name="rockCategory" value="sedimentary"><span class="choice-symbol">▤</span><strong>Sedimentary</strong><small>Formed through deposition and lithification or other sedimentary processes</small></label>
+                <label class="choice-card"><input type="radio" name="rockCategory" value="metamorphic"><span class="choice-symbol">≋</span><strong>Metamorphic</strong><small>Changed by heat, pressure or fluids</small></label>
+              </fieldset>
+
+              <div class="form-grid">
+                <div class="field-group"><label for="rock-texture">Texture <span class="required">*</span></label>
+                  <select id="rock-texture" name="texture" required>
+                    <option value="">Select the closest texture</option>
+                    <option>Coarse-grained</option><option>Medium-grained</option><option>Fine-grained</option>
+                    <option>Very fine-grained</option><option>Glassy</option><option>Vesicular</option>
+                    <option>Foliated</option><option>Non-foliated</option><option>Clastic</option>
+                    <option>Quartz-rich / visible quartz grains</option><option>Porphyritic</option>
+                    <option>Crystalline</option><option>Equigranular</option><option>Phaneritic</option>
+                    <option>Aphanitic</option><option>Other</option>
+                  </select>
+                  <div class="conditional-field" id="other-texture-wrap" hidden><label for="other-texture">Describe the texture</label><input id="other-texture" name="otherTexture" type="text" placeholder="Enter your description"></div>
+                </div>
+                <div class="field-group"><label for="rock-grain-size">Grain size <span class="required">*</span></label>
+                  <select id="rock-grain-size" name="grainSize" required>
+                    <option value="">Select grain size</option>
+                    <option>Very fine</option><option>Fine</option><option>Medium</option><option>Coarse</option>
+                    <option>Very coarse</option><option>Grains not visible to the naked eye</option>
+                    <option>Mixed grain sizes</option><option>Sand-sized</option><option>Silt-sized</option>
+                    <option>Clay-sized</option><option>Gravel-sized</option><option>Other / uncertain</option>
+                  </select>
+                  <div class="conditional-field" id="other-grain-wrap" hidden><label for="other-grain-size">Describe the grain size</label><input id="other-grain-size" name="otherGrainSize" type="text" placeholder="Enter your description"></div>
+                </div>
+                <div class="field-group field-full"><label for="rock-color">Color <span class="required">*</span></label><input id="rock-color" name="color" type="text" required placeholder="e.g. dark grey with white crystals and pink specks"><small>Describe mixed colors, bands, spots, weathering or other color patterns.</small></div>
+                <div class="field-group field-full"><label for="rock-environment">Environment and additional observations</label><textarea id="rock-environment" name="environment" rows="4" placeholder="Where was it found? Describe the outcrop or surroundings, layering, cavities, visible minerals, fossil content, or any other useful evidence."></textarea><small>Do not enter a location you are unsure of. Describe only what you observed or know.</small></div>
+              </div>
+              <div class="form-actions"><p class="muted">AI results are suggestions, not laboratory confirmation.</p><button class="button button-primary" type="submit">✧ Identify my rock</button></div>
+              <p class="form-message" id="rock-identifier-message" role="status" aria-live="polite"></p>
+            </form>
+            <section id="rock-results" class="content-card results-card" hidden aria-live="polite">
+              <p class="eyebrow">IDENTIFICATION RESULTS</p><h2>Most likely match</h2><div id="primary-rock-result"></div>
+              <div class="section-heading"><h3>Possible matches</h3></div><div id="alternative-rock-results"></div>
+              <p class="muted">Compare these suggestions with trusted reference photographs and geological descriptions. If the evidence is insufficient, collect more observations or seek expert confirmation.</p>
+            </section>
+          </section>
+
+          <!-- FIELD NOTEBOOK -->
+          <section class="page-view" id="view-field-notebook" data-page="field-notebook">
+            <div class="page-intro"><p class="eyebrow">FIELDWORK TOOLKIT</p><h1>Field Notebook</h1><p class="muted">Capture field information quickly. Let AI help organize your rough notes into a clear geological record.</p></div>
+            <form id="field-notebook-form" class="content-card form-card">
+              <input type="hidden" name="observationId" id="observation-id">
+              <div class="form-section-heading"><span class="step-number">01</span><div><h2>Site details</h2><p class="muted">Record the information associated with this field stop.</p></div></div>
+              <div class="form-grid">
+                <div class="field-group"><label for="site-number">Location / site number <span class="required">*</span></label><input id="site-number" name="siteNumber" type="text" placeholder="e.g. Site 03" required></div>
+                <div class="field-group"><label for="site-name">Location name</label><input id="site-name" name="siteName" type="text" placeholder="e.g. Bodo axis"></div>
+                <div class="field-group"><label for="site-date">Date <span class="required">*</span></label><input id="site-date" name="date" type="date" required></div>
+                <div class="field-group"><label for="site-time">Time</label><input id="site-time" name="time" type="time"></div>
+                <div class="field-group"><label for="site-latitude">Latitude</label><input id="site-latitude" name="latitude" type="text" inputmode="decimal" placeholder="e.g. 4.123456"></div>
+                <div class="field-group"><label for="site-longitude">Longitude</label><input id="site-longitude" name="longitude" type="text" inputmode="decimal" placeholder="e.g. 7.123456"></div>
+                <div class="field-group"><label for="site-elevation">Elevation (metres)</label><input id="site-elevation" name="elevation" type="number" step="any" placeholder="e.g. 14"></div>
+                <div class="field-group"><label for="site-environment">Environment / setting</label><input id="site-environment" name="environment" type="text" placeholder="e.g. river bank, road cutting, swamp"></div>
+              </div>
+
+              <div class="form-section-heading section-spaced"><span class="step-number">02</span><div><h2>Raw field observations</h2><p class="muted">Fragments, shorthand and quick notes are welcome.</p></div></div>
+              <div class="field-group"><label for="raw-observations">Rough notes and observations <span class="required">*</span></label><textarea id="raw-observations" name="rawNotes" rows="7" required placeholder="Write what you saw: rock or sediment description, grain size, color, bedding, structures, vegetation, water conditions, measurements, contacts, and anything else you observed."></textarea><small>Only record measurements and observations you actually collected. You can organize the wording later.</small></div>
+              <div class="field-group section-spaced"><label for="notebook-instructions">Anything else for the AI to consider</label><textarea id="notebook-instructions" name="extraInstructions" rows="3" placeholder="e.g. Keep the description concise, retain all measurements, or separate observations from interpretation."></textarea></div>
+              <div class="form-actions"><button class="button button-secondary" type="button" id="clear-notebook-form">Clear form</button><button class="button button-primary" type="submit">✧ Organize notes with AI</button></div>
+              <p class="form-message" id="notebook-message" role="status" aria-live="polite"></p>
+            </form>
+
+            <section id="generated-note-panel" class="content-card generated-note-card" hidden>
+              <div class="section-heading"><div><p class="eyebrow">AI-GENERATED DRAFT</p><h2>Review your organized field notes</h2></div><span class="status-pill">Needs review</span></div>
+              <p class="muted">Check all details carefully. AI-generated interpretations should be reviewed before academic submission.</p>
+              <label for="generated-note">Organized observation</label>
+              <textarea id="generated-note" name="generatedNote" rows="16" placeholder="Your organized field notes will appear here."></textarea>
+              <div class="form-actions"><button class="button button-secondary" type="button" id="regenerate-note">Regenerate</button><button class="button button-primary" type="button" id="save-observation">Save observation</button></div>
+              <p class="form-message" id="generated-note-message" role="status" aria-live="polite"></p>
+            </section>
+          </section>
+          
+          
+          <!-- FIELD TOOLS -->
+          <section class="page-view" id="view-field-tools" data-page="field-tools">
+            <div class="page-intro">
+              <p class="eyebrow">FIELD CALCULATORS</p>
+              <h1>Field Tools</h1>
+              <p class="muted">Simple tools for common geological field measurements.</p>
+            </div>
+
+            <div class="field-tools-grid">
+              <!-- PACING CALCULATOR -->
+              <article class="field-tool-card">
+                <div class="field-tool-icon">⌁</div>
+                <h3>Pacing Calculator</h3>
+                <p>Estimate distance using your number of paces and pacing conversion factor.</p>
+
+                <label for="pace-count">Number of Paces</label>
+                <input id="pace-count" type="number" min="0" placeholder="e.g. 670">
+
+                <label for="pace-factor">Pace Factor (metres per pace)</label>
+                <input id="pace-factor" type="number" min="0" step="any" value="0.6" placeholder="e.g. 0.6">
+
+                <button type="button" id="calculate-pace" class="field-tool-button">
+                  Calculate Distance
+                </button>
+
+                <div class="field-tool-result">
+                  <small>Estimated Distance</small>
+                  <strong id="pace-result">—</strong>
+                </div>
+              </article>
+
+              <!-- STRIKE AND DIP -->
+              <article class="field-tool-card">
+                <div class="field-tool-icon">⌖</div>
+                <h3>Strike &amp; Dip</h3>
+                <p>Format strike, dip angle and dip direction into a readable field notation.</p>
+
+                <label for="strike-value">Strike (degrees)</label>
+                <input id="strike-value" type="number" min="0" max="359" placeholder="e.g. 120">
+
+                <label for="dip-angle">Dip Angle (degrees)</label>
+                <input id="dip-angle" type="number" min="0" max="90" placeholder="e.g. 35">
+
+                <label for="dip-direction">Dip Direction</label>
+                <select id="dip-direction">
+                  <option value="">Select direction</option>
+                  <option value="N">North (N)</option>
+                  <option value="NE">Northeast (NE)</option>
+                  <option value="E">East (E)</option>
+                  <option value="SE">Southeast (SE)</option>
+                  <option value="S">South (S)</option>
+                  <option value="SW">Southwest (SW)</option>
+                  <option value="W">West (W)</option>
+                  <option value="NW">Northwest (NW)</option>
+                </select>
+
+                <button type="button" id="format-strike-dip" class="field-tool-button">
+                  Format Measurement
+                </button>
+
+                <div class="field-tool-result">
+                  <small>Field Notation</small>
+                  <strong id="strike-dip-result">—</strong>
+                </div>
+              </article>
+
+              <!-- DISTANCE CONVERTER -->
+              <article class="field-tool-card">
+                <div class="field-tool-icon">⌁</div>
+                <h3>Distance Converter</h3>
+                <p>Convert common field measurements between metres, kilometres and centimetres.</p>
+
+                <label for="distance-value">Distance</label>
+                <input id="distance-value" type="number" min="0" step="any" placeholder="Enter value">
+
+                <label for="distance-unit">Unit</label>
+                <select id="distance-unit">
+                  <option value="m">Metres</option>
+                  <option value="km">Kilometres</option>
+                  <option value="cm">Centimetres</option>
+                </select>
+
+                <button type="button" id="convert-distance" class="field-tool-button">
+                  Convert
+                </button>
+
+                <div class="field-tool-result">
+                  <small>Conversions</small>
+                  <div id="distance-result">—</div>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <!-- OBSERVATIONS -->
+          <section class="page-view" id="view-observations" data-page="observations">
+            <div class="page-intro page-intro-actions"><div><p class="eyebrow">YOUR FIELD RECORDS</p><h1>Saved Observations</h1><p class="muted">Review, edit and manage the geological records you have saved.</p></div><button class="button button-primary" type="button" data-view="field-notebook">＋ New observation</button></div>
+            <div class="observation-toolbar"><label class="search-input" for="observation-search"><span aria-hidden="true">⌕</span><input id="observation-search" type="search" placeholder="Search by site name or notes..."></label><label class="visually-hidden" for="observation-sort">Sort observations</label><select id="observation-sort"><option value="newest">Newest first</option><option value="oldest">Oldest first</option><option value="site">Site number</option></select></div>
+            <div id="observations-list" class="observation-list"><div class="empty-state"><span class="empty-icon">☷</span><strong>Your saved observations will appear here</strong><p>Generate and save your first organized field note to get started.</p><button class="button button-secondary" type="button" data-view="field-notebook">Create an observation</button></div></div>
+          </section>
+
+          <!-- PROFILE -->
+          <section class="page-view" id="view-profile" data-page="profile">
+            <div class="page-intro"><p class="eyebrow">YOUR ACCOUNT</p><h1>Profile & Settings</h1><p class="muted">Manage your GeoGuide profile and account preferences.</p></div>
+            <form id="profile-form" class="content-card form-card">
+              <div class="field-group"><label for="profile-name">Full name</label><input id="profile-name" name="fullName" type="text" autocomplete="name" placeholder="Your full name"></div>
+              <div class="field-group section-spaced"><label for="profile-email">Email address</label><input id="profile-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" readonly><small>Your email is managed by the authentication service.</small></div>
+              <div class="form-actions"><button class="button button-primary" type="submit">Save profile</button></div>
+              <p class="form-message" id="profile-message" role="status" aria-live="polite"></p>
+            </form>
+          </section>
+
+          <!-- ABOUT / OWNERSHIP -->
+          <section class="page-view" id="view-about" data-page="about">
+            <div class="page-intro"><p class="eyebrow">ABOUT THE PROJECT</p><h1>About GeoGuide</h1><p class="muted">Explore. Identify. Understand.</p></div>
+            <article class="content-card about-card">
+              <div class="about-brand-mark" aria-hidden="true">G</div>
+              <h2>A practical companion for geology learners.</h2>
+              <p>GeoGuide is designed to help students explore rocks and minerals, organize field observations, and build a useful geological reference. Its AI-assisted tools are intended to support learning and documentation, not replace laboratory testing, field evidence, or expert judgment.</p>
+              <div class="about-feature-list">
+                <div><span>01</span><div><strong>Explore</strong><p>Browse geological reference material.</p></div></div>
+                <div><span>02</span><div><strong>Identify</strong><p>Consider likely rock matches from observed evidence.</p></div></div>
+                <div><span>03</span><div><strong>Understand</strong><p>Organize field notes and reflect on geological observations.</p></div></div>
+              </div>
+              <footer class="project-credit">
+                <p>Designed, founded and developed by</p>
+                <h3>Royalty Goodluck</h3>
+                <p class="muted">Founder & Developer, GeoGuide</p>
+                <p class="copyright">© <span id="copyright-year">2026</span> Royalty Goodluck. All rights reserved.</p>
+              </footer>
+            </article>
+          </section>
+
+          <footer class="app-footer"><span>GeoGuide · Explore. Identify. Understand.</span><span> Founded and developed by Royalty Goodluck · © <span class="footer-year">2026</span></span></footer>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- Observation editor / details dialog -->
+  <dialog id="observation-dialog" class="observation-dialog">
+    <form method="dialog" class="dialog-topbar"><h2 id="observation-dialog-title">Observation</h2><button class="icon-button" value="cancel" aria-label="Close dialog">×</button></form>
+    <div id="observation-dialog-content"></div>
+  </dialog>
+
+  <!-- Confirmation dialog for destructive actions -->
+  <dialog id="confirm-delete-dialog" class="confirm-dialog">
+    <form method="dialog">
+      <h2>Delete this observation?</h2>
+      <p>This action may not be reversible. Make sure you no longer need this field record.</p>
+      <div class="form-actions"><button class="button button-secondary" value="cancel">Cancel</button><button class="button button-danger" id="confirm-delete-button" value="confirm">Delete observation</button></div>
+    </form>
+  </dialog>
+
+  <script src="script.js"></script>
+</body>
+</html>
