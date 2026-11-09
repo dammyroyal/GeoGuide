@@ -22,7 +22,7 @@
    1. CONFIGURATION AND SHARED STATE
    ========================================================= */
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://geoguide-backend.onrender.com/api";
 
 const state = {
   user: null,
